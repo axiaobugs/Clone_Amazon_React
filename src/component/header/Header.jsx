@@ -7,6 +7,7 @@ import {useStateValue} from "../../StateProvider";
 
 function Header() {
     const [{cart},dispatch]=useStateValue();
+    const userInfo=JSON.parse(localStorage.getItem("userInfo"))
     return (
         <div className='header'>
             <Link to="/">
@@ -25,14 +26,16 @@ function Header() {
                 <SearchIcon className="header_searchIcon"/>
             </div>
             <div className="header_nav">
-                 <div className="header_option">
+                 <Link to='/login'>
+                     <div className="header_option">
                      <span className="header_optionLineOne">
-                         Hello Guest
+                         Hello {userInfo&&userInfo.code===200?userInfo.user.nickName:"Guest"}
                      </span>
-                     <span className="header_optionLineTwo">
-                         Sign In
+                         <span className="header_optionLineTwo">
+                         {userInfo&&userInfo.code===200?"Log out":"Sign In"}
                      </span>
-                 </div>
+                     </div>
+                 </Link>
                 <div className="header_option">
                     <span className="header_optionLineOne">
                          Returns
