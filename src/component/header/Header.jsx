@@ -1,13 +1,30 @@
-import React from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import SearchIcon from '@material-ui/icons/Search';
 import './header.css'
 import {ShoppingBasket} from "@material-ui/icons";
 import {Link} from "react-router-dom";
 import {useStateValue} from "../../StateProvider";
+import {AccountContext} from "../auth/Account";
 
+// TODO: add log_out Component
 function Header() {
     const [{cart},dispatch]=useStateValue();
-    const userInfo=JSON.parse(localStorage.getItem("userInfo"))
+    const [status,setStatus]=useState(false);
+    const [nickName,setNickName]=useState();
+
+    const {getSession,logout} = useContext(AccountContext);
+
+
+    useEffect(()=>{
+        getSession()
+            .then(session=>{
+                // TODO: after debug delete this line.
+                console.log("Session: ",session);
+                setStatus(true)
+                setNickName(session.idToken.payload.nickname)
+
+            })
+    },[])
     return (
         <div className='header'>
             <Link to="/">
@@ -26,16 +43,18 @@ function Header() {
                 <SearchIcon className="header_searchIcon"/>
             </div>
             <div className="header_nav">
-                 <Link to='/login'>
-                     <div className="header_option">
-                     <span className="header_optionLineOne">
-                         Hello {userInfo&&userInfo.code===200?userInfo.user.nickName:"Guest"}
-                     </span>
-                         <span className="header_optionLineTwo">
-                         {userInfo&&userInfo.code===200?"Log out":"Sign In"}
-                     </span>
-                     </div>
-                 </Link>
+
+                 <div className="header_option">
+                 <span className="header_optionLineOne">
+                     Hello {nickName?nickName:"Guest"}
+                 </span>
+                     <span className="header_optionLineTwo">
+                     {status?
+                         (<a className="header_logout" href="/"  onClick={logout} >Log Out</a>):
+                         (<Link to="/login"><p className="header_signIn">Sign In</p></Link>)}
+                 </span>
+                 </div>
+
                 <div className="header_option">
                     <span className="header_optionLineOne">
                          Returns

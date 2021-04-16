@@ -64,4 +64,12 @@
     margin-right: 10px;
     color: white;
 }
+.header_signIn{
+    text-decoration: none;
+    color: white;
+}
+.header_logout{
+    text-decoration: none;
+    color: white;
+}
 

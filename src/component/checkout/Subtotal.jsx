@@ -2,7 +2,7 @@ import React from 'react';
 import CurrencyFormat from 'react-currency-format';
 import './subtotal.css'
 import {useStateValue} from "../../StateProvider";
-import {getCartTotal} from '../../reducer'
+import {getCartTotal} from '../../cartReducer'
 
 function Subtotal() {
     // * Pull the data from the datalayer

@@ -1,46 +1,41 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import './login.css'
 import {Link} from "react-router-dom";
-import Axios from 'axios'
+import {CognitoUserAttribute} from "amazon-cognito-identity-js"
+import UserPool from "../../UserPool";
 
-// TODO: Verify the password
+
+// TODO: add the re-enter password and verify these(follow the rule as the Cognito)
 
 function Login(props) {
-    /*
-    !  prepare the data
-    */
-
-    const [loginName,setLoginName]=useState("");
+    // * prepare the data
+    const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
-    const [rePassword,setRePassword]=useState("");
+    const [name,setName]=useState("");
     const [address,setAddress]=useState("");
     const [nickName,setNickName]=useState("");
 
-    /*
-    !  when sign in success then save user detail to localstorage
-    !  other request will attach the token in the header
-    */
-
     const registerHandler= async (e) =>{
         e.preventDefault();
-        console.log(typeof(password))
-        let data_body = new FormData();
-        data_body.append("loginName",loginName);
-        data_body.append("passwordMd5",password);
-        data_body.append("nickName",nickName);
-        data_body.append("address",address)
-        const {data,error} = await Axios.post("http://localhost:8080/register",data_body)
-        if (data.msg===200){
-            localStorage.removeItem("userInfo")
-            localStorage.setItem("userInfo",JSON.stringify(data));
-            props.history.push("/")
-        }else{
-            alert(error)
-        }
+        let attributeList = [];
+        attributeList.push(new CognitoUserAttribute({Name:'address',Value:address}));
+        attributeList.push(new CognitoUserAttribute({Name:'name',Value: name}));
+        attributeList.push(new CognitoUserAttribute({Name:'nickname',Value:nickName}));
+
+        UserPool.signUp(
+            email,
+            password,
+            attributeList,
+            null,
+            (err,data)=>{
+            if(err){
+                console.warn(err.message)
+            }
+            // * redirect to the login page when success register
+            console.log(data)
+            props.history.push("/login")
+        })
     }
-
-
-
 
     return (
         <div className='login'>
@@ -55,12 +50,12 @@ function Login(props) {
             <div className="login_container">
                 <h1>Create a Account</h1>
                 <form action="">
-                    <h5>User Name</h5>
+                    <h5>Email</h5>
                     <input
-                        type="text"
-                        value={loginName}
+                        type="email"
+                        value={email}
                         placeholder="your login name"
-                        onChange={e=>{setLoginName(e.target.value)}}
+                        onChange={e=>{setEmail(e.target.value)}}
                     />
 
                     <h5>Password</h5>
@@ -69,11 +64,12 @@ function Login(props) {
                         value={password}
                         onChange={e=>{setPassword(e.target.value)}}
                     />
-                    <h5>Re-enter password: </h5>
+                    <h5>Name</h5>
                     <input
-                        type="password"
-                        value={rePassword}
-                        onChange={e=>{setRePassword(e.target.value)}}
+                        type="text"
+                        placeholder="Your real name like:Jhon Allen"
+                        value={name}
+                        onChange={e=>{setName(e.target.value)}}
                     />
                     <h5>Address</h5>
                     <input

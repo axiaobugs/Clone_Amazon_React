@@ -1,48 +1,41 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useContext} from 'react';
 import './login.css'
 import {Link} from "react-router-dom";
-import Axios from 'axios'
+import {AccountContext} from "./Account";
+
 
 // TODO: if localstorage have token then redirect to the home page
 
 function Login(props) {
-    /*
-    !  prepare the data
-    */
-
-    const [userName,setUserName]=useState("");
+    // * prepare the data
+    const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
-    const userInfo=localStorage.getItem("userInfo")
+    const {authenticate,getSession} = useContext(AccountContext)
 
-    /*
-    !  when sign in success then save user detail to localstorage
-    !  other request will attach the token in the header
-    */
-
-    const signInHandler= async (e) =>{
+    const signInHandler= (e) =>{
         e.preventDefault();
-        localStorage.removeItem("userInfo")
-        let data_body = new FormData();
-        data_body.append("loginname",userName);
-        data_body.append("passwordMD5",password);
-        const {data,error} = await Axios.post("http://localhost:8080/signin",data_body)
-        if (data.code===200){
-            localStorage.setItem("userInfo",JSON.stringify(data));
-            props.history.push("/")
-        }else{
-            alert(error)
-        }
+        // * authenticate only
+        authenticate(email,password)
+            .then(data=>{
+                console.log("Logged in!",data)
+                props.history.push("/")
+            })
+            .catch(err=>{
+                console.error("Failed to login",err)
+            })
     }
 
 
-    useEffect(()=>{
-        const userInfo = JSON.parse(localStorage.getItem("userInfo"))
-        if(userInfo&&userInfo.code!==200){
-            props.history.push("/login")
-        }else if(userInfo && userInfo.code===200){
-            props.history.push("/")
-        }
-    },[props.history,userInfo])
+
+ useEffect(()=>{
+        getSession()
+            .then(session=>{
+               if(session){
+                   props.history.push("/")
+               }
+            })
+    },[props.history])
+
 
     return (
         <div className='login'>
@@ -57,11 +50,12 @@ function Login(props) {
             <div className="login_container">
                 <h1>Sign-In</h1>
                 <form action="">
-                    <h5>User Name: </h5>
+                    <h5>User Name</h5>
                     <input
-                        type="text"
-                        value={userName}
-                        onChange={e=>{setUserName(e.target.value)}}
+                        type="email"
+                        placeholder="Your Email address"
+                        value={email}
+                        onChange={e=>{setEmail(e.target.value)}}
                     />
 
                     <h5>Password: </h5>
