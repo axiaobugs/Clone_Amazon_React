@@ -4,14 +4,38 @@ import {BrowserRouter as Router,Switch,Route} from 'react-router-dom'
 import Checkout from "./component/checkout/Checkout";
 import Login from "./component/auth/Login";
 import Register from './component/auth/Register'
-import React from "react";
-import {Account} from "./component/auth/Account";
+import React, {useEffect,useState,useContext} from "react";
+import {AccountContext} from "./component/auth/Account";
+import {useStateValue} from "./StateProvider";
 
 
 function App() {
+    const [status,setStatus]=useState(false);
+    const {getSession} = useContext(AccountContext);
 
+    const [{},dispatch]=useStateValue();
+
+    useEffect(()=>{
+        getSession()
+            .then(session=>{
+                // prepare the status
+                setStatus(true);
+                // push the data to the data layer
+                dispatch({
+                    type:"SET_USER",
+                    user:session.idToken
+                })
+
+            })
+            .catch(err=>{
+                setStatus(false);
+                dispatch({
+                    type:"SET_USER",
+                    user:null
+                })
+            })
+    },[status])
     return (
-        <Account>
           <Router>
               <div className="App">
                   <Switch>
@@ -28,7 +52,6 @@ function App() {
                   </Switch>
               </div>
           </Router>
-        </Account>
     );
 }
 

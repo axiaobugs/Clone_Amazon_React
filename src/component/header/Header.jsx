@@ -6,25 +6,22 @@ import {Link} from "react-router-dom";
 import {useStateValue} from "../../StateProvider";
 import {AccountContext} from "../auth/Account";
 
-// TODO: add log_out Component
+
 function Header() {
-    const [{cart},dispatch]=useStateValue();
+    const [{cart,user},dispatch]=useStateValue();
     const [status,setStatus]=useState(false);
-    const [nickName,setNickName]=useState();
+    const [nickName,setNickName]=useState("Guest");
 
-    const {getSession,logout} = useContext(AccountContext);
-
+    const {logout} = useContext(AccountContext);
 
     useEffect(()=>{
-        getSession()
-            .then(session=>{
-                // TODO: after debug delete this line.
-                console.log("Session: ",session);
-                setStatus(true)
-                setNickName(session.idToken.payload.nickname)
-
-            })
-    },[])
+        if(user){
+            // user had logged in
+            setStatus(true)
+            setNickName(user.payload.nickname)
+        }
+        console.log(status)
+    },[status,user])
     return (
         <div className='header'>
             <Link to="/">
@@ -46,7 +43,7 @@ function Header() {
 
                  <div className="header_option">
                  <span className="header_optionLineOne">
-                     Hello {nickName?nickName:"Guest"}
+                     Hello {nickName}
                  </span>
                      <span className="header_optionLineTwo">
                      {status?

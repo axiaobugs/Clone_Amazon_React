@@ -2,22 +2,37 @@ import React, {useEffect, useState,useContext} from 'react';
 import './login.css'
 import {Link} from "react-router-dom";
 import {AccountContext} from "./Account";
+import {useStateValue} from "../../StateProvider";
 
 
-// TODO: if localstorage have token then redirect to the home page
+// TODO: dispatch user info to the data layer
 
 function Login(props) {
     // * prepare the data
     const [email,setEmail]=useState("");
     const [password,setPassword]=useState("");
     const {authenticate,getSession} = useContext(AccountContext)
+    const [{user},dispatch] = useStateValue()
 
     const signInHandler= (e) =>{
         e.preventDefault();
         // * authenticate only
         authenticate(email,password)
             .then(data=>{
-                console.log("Logged in!",data)
+                // dispatch user info to the data layer
+                getSession()
+                    .then(session=>{
+                        dispatch({
+                            type:"SET_USER",
+                            user:session.idToken
+                        })
+                    })
+                    .catch(err=>{
+                        dispatch({
+                            type:"SET_USER",
+                            user:null
+                        })
+                    })
                 props.history.push("/")
             })
             .catch(err=>{
@@ -28,13 +43,10 @@ function Login(props) {
 
 
  useEffect(()=>{
-        getSession()
-            .then(session=>{
-               if(session){
-                   props.history.push("/")
-               }
-            })
-    },[props.history])
+        if(user){
+         props.history.push("/")
+        }
+    },[props.history,user])
 
 
     return (

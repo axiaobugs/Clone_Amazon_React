@@ -3,7 +3,7 @@ import React from 'react';
 import './home.css'
 import Product from "../product/Product";
 
-// TODO: id will use the database of product_id
+//  TODO: id will use the database of product_id
 
 function Home(props) {
     return (

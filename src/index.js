@@ -3,14 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import {StateProvider} from "./StateProvider";
-import cartReducer ,{initialState} from "./cartReducer";
+import reducer ,{initialState} from "./Reducer";
+import {Account} from "./component/auth/Account";
 
 
 ReactDOM.render(
   <React.StrictMode>
-      <StateProvider initialState={initialState} reducer={cartReducer}>
-          <App />
-      </StateProvider>
+      <Account>
+          <StateProvider initialState={initialState} reducer={reducer}>
+              <App />
+          </StateProvider>
+      </Account>
+
   </React.StrictMode>,
   document.getElementById('root')
 );
